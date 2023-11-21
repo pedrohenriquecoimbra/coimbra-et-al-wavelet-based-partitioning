@@ -41,6 +41,7 @@ do_gapfill = function(path_to_file, met_path="", NEE_name="co2_flux",
                       fluxcols=c('NEE'),
                       Lat=43, Lon=47.5,
                       partitioning="MRF",
+                      fITC=T, fSTA=T,
                       save=F,
                       path_to_output_file="",
                       verbosity=1){
@@ -85,8 +86,8 @@ do_gapfill = function(path_to_file, met_path="", NEE_name="co2_flux",
       # apply flags (value -> nan)
       #mutate(NEE = ifelse(`fITC`>0, NaN, NEE),
       #       NEE = ifelse(`fSTA`>0, NaN, NEE)) %>%
-      mutate(NEE = ifelse(`flag(w)`>1, NaN, NEE),
-             NEE = ifelse(`flag(w/co2)`>1, NaN, NEE)) %>%
+      mutate(NEE = ifelse(fITC, ifelse(`flag(w)`>2, NaN, NEE), NEE),
+             NEE = ifelse(fSTA, ifelse(`flag(w/co2)`>2, NaN, NEE), NEE)) %>%
       # exclude duplicates (keep first)
       distinct(TIMESTAMP, .keep_all = T) %>%
       rename(DateTime=TIMESTAMP)
@@ -129,8 +130,7 @@ do_gapfill = function(path_to_file, met_path="", NEE_name="co2_flux",
   #FilledEddyData <- FilledEddyData %>%
   #  select(starts_with('NEE'), starts_with('GPP'), starts_with('Reco'))
   #FilledEddyData <- rbind(colnames(FilledEddyData), FilledEddyData)
-  print('FilledEddyData 14:39')
-  print(colnames(FilledEddyData))
+  
   if (save){
     write_csv(FilledEddyData,
               ifelse(path_to_output_file!='', path_to_output_file, path_to_file))
@@ -138,12 +138,12 @@ do_gapfill = function(path_to_file, met_path="", NEE_name="co2_flux",
   } else {return(FilledEddyData)}
 }
 
-example <- function(SiteName){
-  SiteName <- "FR-Gri"
-  cwd <- "C:/Users/phherigcoimb/OneDrive/INRAe/thesis-project-1/data/flux/ICOS/"
-  path <- paste0(cwd, SiteName,"/",SiteName,"_full_output_flagged.30mn.csv")
-  root = paste0("C:/Users/phherigcoimb/OneDrive/INRAe/thesis-project-1/data/flux/ICOS/",
-                SiteName,"/",SiteName)
+
+routine_partition <- function(SiteName, cwd, path, ec_name="co2_flux", dw_name="wco2"){
+  #SiteName <- "FR-Gri"
+  #cwd <- "C:/Users/phherigcoimb/OneDrive/INRAe/thesis-project-1/data/flux/ICOS/"
+  #path <- paste0(cwd, SiteName,"/",SiteName,"_full_output_flagged.30mn.csv")
+  root = paste0(cwd, SiteName, "/", SiteName)
 
   mpath <- ifelse(SiteName=="FR-Fon", paste0(cwd,SiteName,"/ICOSETC_",SiteName,"_METEO_L2.csv"), "")
 
@@ -156,28 +156,27 @@ example <- function(SiteName){
   # plot(as.Date(as.character(ICOSETC_FR_Fon_METEO_L2$TIMESTAMP_START),
   #              tryFormat=c("%Y%m%d%H%M")), ICOSETC_FR_Fon_METEO_L2$SW_IN)
 
-  do_gapfill(path, mpath, NEE_name = "dwt_wco2_x", partitioning = "MRF",
-             verbosity = 2) %>%
-    write_csv(paste0(root, "_full_gapfill_MRF_DWgapswithSTAandITC.30mn.csv"))
-  break
-  dat_mrf_ec <- do_gapfill(path, mpath, NEE_name = "co2_flux", partitioning = "MRF",
-                           verbosity = 2)
+  dat_mrf_ec <- do_gapfill(path, mpath, NEE_name = ec_name, partitioning = "MRF",
+                           verbosity = 2, fITC=T, fSTA=T)
   print("ECS MRF done")
-  dat_tkf_ec <- do_gapfill(path, mpath, NEE_name = "co2_flux", partitioning = "TKF",
-                           verbosity = 2)
+  dat_tkf_ec <- do_gapfill(path, mpath, NEE_name = ec_name, partitioning = "TKF",
+                           verbosity = 2, fITC=T, fSTA=T)
   print("ECS TKF done")
-  dat_glf_ec <- do_gapfill(path, mpath, NEE_name = "co2_flux", partitioning = "GLF",
-                           verbosity = 2)
+  dat_glf_ec <- do_gapfill(path, mpath, NEE_name = ec_name, partitioning = "GLF",
+                           verbosity = 2, fITC=T, fSTA=T)
   print("ECS GLF done")
-  dat_mrf_dw <- do_gapfill(path, mpath, NEE_name = "dwt_wco2_x", partitioning = "MRF",
-                           verbosity = 2)
+  dat_mrf_dw <- do_gapfill(path, mpath, NEE_name = dw_name, partitioning = "MRF",
+                           verbosity = 2, fITC=T, fSTA=F)
   print("DW MRF done")
-  dat_tkf_dw <- do_gapfill(path, mpath, NEE_name = "dwt_wco2_x", partitioning = "TKF",
-                           verbosity = 2)
+  dat_tkf_dw <- do_gapfill(path, mpath, NEE_name = dw_name, partitioning = "TKF",
+                           verbosity = 2, fITC=T, fSTA=F)
   print("DW TKF done")
-  dat_glf_dw <- do_gapfill(path, mpath, NEE_name = "dwt_wco2_x", partitioning = "GLF",
-                           verbosity = 2)
+  dat_glf_dw <- do_gapfill(path, mpath, NEE_name = dw_name, partitioning = "GLF",
+                           verbosity = 2, fITC=T, fSTA=F)
   print("DW GLF done")
+  dat_mrf_dw_ITCaSTA <- do_gapfill(path, mpath, NEE_name = dw_name, partitioning = "MRF",
+                           verbosity = 2, fITC=T, fSTA=T)
+  print("DW MRF (ITC and STA) done")
 
   plot(dat_tkf_ec$TIMESTAMP, dat_tkf_ec$Reco_DT_uStar,
        xlim=c(as.POSIXct("2022/07/11 0000", tz='GMT'), as.POSIXct("2022/07/26 0000", tz='GMT')),
@@ -199,7 +198,7 @@ example <- function(SiteName){
     geom_line(aes(y=ifelse(Tair_f>28, Tair_f, 28)), color='red') +
     xlim(as.POSIXct("2021/07/01 0000", tz='GMT'), as.POSIXct("2021/12/01 0000", tz='GMT')) +
     ylim(-5, 40)
-
+  
   write_csv(dat_mrf_ec, paste0(root, "_full_gapfill_MRF_EP.30mn.csv"))
   write_csv(dat_tkf_ec, paste0(root, "_full_gapfill_TKF_EP.30mn.csv"))
   write_csv(dat_glf_ec, paste0(root, "_full_gapfill_GLF_EP.30mn.csv"))
@@ -207,5 +206,6 @@ example <- function(SiteName){
   write_csv(dat_mrf_dw, paste0(root, "_full_gapfill_MRF_DW.30mn.csv"))
   write_csv(dat_tkf_dw, paste0(root, "_full_gapfill_TKF_DW.30mn.csv"))
   write_csv(dat_glf_dw, paste0(root, "_full_gapfill_GLF_DW.30mn.csv"))
+  write_csv(dat_mrf_dw_ITCaSTA, paste0(root, "_full_gapfill_MRF_DWgapswithSTAandITC.30mn.csv"))
 }
 

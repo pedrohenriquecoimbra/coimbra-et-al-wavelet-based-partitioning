@@ -20,6 +20,37 @@ Results show 17 to 29 % fewer gaps in wavelet-based than with standard EC, varyi
 
 The new wavelet-based direct partitioning provided daily GPP and Reco very similar to night- and day-time model-based partitioning methods, with the difference between our method and these standard methods smaller than between them. Our method did not produce positive GPP, a common error in the night-time method. It also showed Reco seasonal patterns coherent with management practices at the crop site (growing season, harvest, manure application), which was not always the case for the standard methods. The Reco diel cycle was noticeably different, whereas the standard methods are temperature-driven; our method had a daily pattern correlated to solar radiation and a night-time pattern correlated to soil temperature. 
 
+# Directory structure
+
+project\
+├ data\
+&nbsp;|&nbsp;&nbsp;&nbsp;┕ site\
+&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ CDWT\
+&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;┕ (...).csv\
+&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ eddypro_output\
+&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;┕ eddypro_raw_datasets\
+&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├ (...).csv\
+&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;┕ readme.txt <i>(new)</i>\
+&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ┕ (...).csv\
+├ figures\
+&nbsp;|&nbsp;&nbsp;&nbsp;┕ figure(...).png\
+├ (...).py\
+├ (...).ipynb\
+┕ (...).R
+
+# Step-by-step
+
+1. Run EddyPro, saving level 6 raw data. \
+To do this go in Advanced Settings (top menu) > Output Files (left menu) > Processed raw data (bottom);\
+Then select Time series on "level 6 (after time lag compensation)";\
+Select all variables;
+Proceed as usual running on "Advanced Mode".
+
+2. Follow coimbra2023_fluxcalculation.ipynb\
+This will run the wavelet decomposition, then interface with REddyProc for gapfilling and standard partitioning.
+
+3. Try out the figures in coimbra2023_figures.ipynb
+
 # Code
 
 - coimbra2023_figures.ipynb<br>
