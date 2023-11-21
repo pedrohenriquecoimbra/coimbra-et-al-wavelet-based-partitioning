@@ -38,6 +38,21 @@ project\
 ├ (...).ipynb\
 ┕ (...).R
 
+Where <i>readme.txt</i> in EddyPro raw datasets' folder is a yaml file that reads:
+````
+FILE_RAW:
+  date_format: '%Y%m%d-%H%M'
+  dt: 0.05
+  file_pattern: ([0-9]{8}-[0-9]{4})_raw_dataset_.*.txt
+READ_CSV:
+  sep: '\s+'
+  skiprows: 8
+  na_values:
+  - NaN
+  - nan
+  - -9999
+````
+
 # Step-by-step
 
 1. Run EddyPro, saving level 6 raw data. \
