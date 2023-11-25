@@ -1,6 +1,9 @@
 """
 This script is a key part of the following publications:
-    - https://hal.science/hal-04272798
+    - Herig Coimbra, Pedro Henrique and Loubet, Benjamin and Laurent, Olivier and Mauder, Matthias and Heinesch, Bernard and 
+    Bitton, Jonathan and Delpierre, Nicolas and Depuydt, Jérémie and Buysse, Pauline, Improvement of Co2 Flux Quality Through 
+    Wavelet-Based Eddy Covariance: A New Method for Partitioning Respiration and Photosynthesis. 
+    Available at SSRN: https://ssrn.com/abstract=4642939 or http://dx.doi.org/10.2139/ssrn.4642939
 
 The main function is:  
 - run_wt
@@ -44,7 +47,7 @@ import pandas as pd
 import itertools
 
 # Project modules
-from coimbra2023 import *
+from coimbra2023_scripts import *
 
 def __cwt__(input, fs, f0, f1, fn, nthreads=1, scaling="log", fast=False, norm=True, Morlet=6.0):
     """
