@@ -346,9 +346,12 @@ def run_wt(ymd, varstorun, raw_kwargs, output_path, wt_kwargs={},
                         N = len(X)
                         X = mauder2013(X)
                         Xna = np.isnan(X)
-                        X = np.interp(np.linspace(0, 1, N), 
-                                           np.linspace(0, 1, N)[Xna == False],
-                                  X[Xna==False])
+                        try:
+                            X = np.interp(np.linspace(0, 1, N), 
+                                            np.linspace(0, 1, N)[Xna == False],
+                                    X[Xna==False])
+                        except Exception as e:
+                            warnings.warn(str(e))
                         return X 
                     φ[v] = np.apply_along_axis(__despike__, 1, φ[v])
                     μ[v] = signan *1
